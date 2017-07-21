@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# cleanup
+
+docker service rm master
+docker config rm master.conf
+docker config rm eloipool.conf
+docker service rm miners
+docker config rm miner.conf
+docker network rm btctest
+

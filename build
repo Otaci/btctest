@@ -1,0 +1,31 @@
+#!/bin/bash
+
+
+# build the test network
+
+
+docker network create --driver overlay btctest
+
+docker config create master.conf config/master.conf
+docker config create eloipool.conf config/eloipool.config.py
+docker service create --name master --network btctest \
+    --config source=master.conf,target=/bitcoin.conf \
+    --config source=eloipool.conf,target=/usr/local/eloipool/config.py \
+    --publish 18444:18444 \
+    --publish 18443:18443 \
+    --publish 3334:3334 \
+    otaci/bitcoin-test
+
+# wait for service to be up
+until [ "`docker service ls -f "name=master" --format "{{.Replicas}}"`" == "1/1" ]; do
+  sleep 0.1;
+done;
+
+./swarm_cmd master 1 "/bin/bash /usr/local/bin/btc_genblocks"
+
+docker config create miner.conf config/miner.conf
+docker service create --name miners --network btctest \
+    --replicas 1 \
+    --config source=miner.conf,target=/bitcoin.conf \
+    otaci/bitcoin-test
+
