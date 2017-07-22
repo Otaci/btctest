@@ -4,19 +4,30 @@
 # build the test network
 
 
-docker network create --driver overlay btctest
+# bitcoin treats private ip addresses (RFC 1918) differently
+# one effect is that connections wont spread between nodes
+docker network create \
+	--driver=overlay \
+	--subnet=166.166.0.0/16 \
+	--ip-range=166.166.0.0/16 \
+	--gateway=166.166.0.1 \
+	btctest
 
 docker config create master.conf config/master.conf
-docker config create eloipool.conf config/eloipool.config.py
 docker service create --name master --network btctest \
     --config source=master.conf,target=/bitcoin.conf \
-    --config source=eloipool.conf,target=/usr/local/eloipool/config.py \
     --publish 18444:18444 \
     --publish 18443:18443 \
-    --publish 3334:3334 \
     otaci/bitcoin-test
 
-# wait for service to be up
+docker config create eloipool.conf config/eloipool.config.py
+docker service create --name pool --network btctest \
+    --config source=eloipool.conf,target=/eloipool/eloipool/config.py \
+    --publish 3334:3334 \
+    otaci/btctest-btc-pool
+
+
+# wait for master service to be up
 until [ "`docker service ls -f "name=master" --format "{{.Replicas}}"`" == "1/1" ]; do
   sleep 0.1;
 done;

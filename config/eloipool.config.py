@@ -77,7 +77,7 @@ TrackerAddr = 'mv7hiazDbtYTRbmoSbEEsUzBny6k3jDVV5'  # testnet
 TemplateSources = (
 	{
 		'name': 'primary',
-		'uri': 'http://bitcoinrpc:testing@localhost:18443',
+		'uri': 'http://bitcoinrpc:testing@master:18443',
 		'priority': 0,
 		'weight': 1,
 	},
@@ -118,7 +118,8 @@ MinimumTemplateScore = 1
 DelayLogForUpstream = False
 
 # Bitcoin p2p server for announcing blocks found
-UpstreamBitcoindNode = ('127.0.0.1', 18444)  # testnet
+# must be IP address
+UpstreamBitcoindNode = ('166.166.0.2', 18444)  # testnet
 
 # Network ID for the primary blockchain
 # Other known network IDs can be found at:
